@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Projects &amp; Writing</title>
+<meta name="description" content="Projects and writing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap">
+<style>
+/* One calm column: identity block, then projects and writing as hairline-separated lists. Light only. */
+:root{
+  --bg:#fcfcfb; --surface:#ffffff; --fg:#16181d; --muted:#7b7f88; --faint:#b4b7bd; --line:#ececea;
+  --tint:#f3f3f1; --accent:#2b59c3;
+  --font:"Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --read:"Newsreader", Georgia, "Times New Roman", serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.wrap{max-width:620px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:104px 120px;display:flex;flex-direction:column;gap:80px}
+@media (max-width:640px){.wrap{padding-block:56px 80px;gap:60px}}
+.id{display:flex;flex-direction:column;gap:14px;min-width:0}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--tint);border:1px solid var(--line);display:grid;place-items:center;font-weight:500;font-size:16px;color:var(--muted);margin-bottom:6px;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.name{font-size:30px;line-height:1.15;font-weight:600;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.tagline{margin:0;color:var(--muted);font-size:17px;line-height:1.45}
+.about{margin:6px 0 0;font-size:15.5px;line-height:1.7;color:#3a3d44;white-space:pre-line;max-width:58ch}
+.social{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:10px 0 0;padding:0}
+.social a{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px 0 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13.5px;color:#3a3d44;transition:border-color .15s,color .15s,background .15s}
+.social a:hover{border-color:#d6d7d4;color:var(--fg);background:var(--tint)}
+.social svg{width:15px;height:15px;flex:none}
+main{min-width:0;display:flex;flex-direction:column;gap:72px}
+section{display:flex;flex-direction:column;min-width:0}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.sec-head h2{margin:0;font-size:11.5px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.sec-head .count{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 24px;align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line)}
+.row h3{margin:0;font-size:16px;font-weight:500;letter-spacing:-.01em}
+.row h3 a{transition:color .15s}
+.row h3 a:hover{color:var(--accent)}
+.row h3 a::after{content:" →";color:var(--accent);opacity:0;transition:opacity .15s}
+.row h3 a:hover::after{opacity:1}
+.row p{margin:3px 0 0;color:var(--muted);line-height:1.55;max-width:56ch}
+.meta{font-size:13px;color:var(--faint);white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;line-height:1.5}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;font-size:12.5px;padding:3px 9px;border-radius:6px;background:var(--tint);color:#4a4d55;transition:background .15s,color .15s}
+.chip:hover{background:#e8ebf5;color:var(--accent)}
+.empty{color:var(--muted);padding:22px 0;border-bottom:1px solid var(--line);margin:0}
+.reader{display:flex;flex-direction:column;gap:10px;min-width:0}
+.back{align-self:flex-start;font-size:13px;color:var(--muted);margin-bottom:28px;transition:color .15s}
+.back:hover{color:var(--accent)}
+.reader h1{margin:0;font-size:32px;font-weight:600;line-height:1.15;letter-spacing:-.025em;text-wrap:balance}
+.rmeta{font-size:13px;color:var(--faint);margin-bottom:28px;font-variant-numeric:tabular-nums}
+.prose{max-width:65ch;font-family:var(--read);font-size:19px;line-height:1.7;color:#24262b}
+.prose h2,.prose h3{font-family:var(--font);font-size:17px;font-weight:600;letter-spacing:-.01em;margin:2em 0 .5em}
+.prose p{margin:0 0 1.15em}
+.prose blockquote{margin:0 0 1.15em;padding-left:18px;border-left:2px solid var(--line);color:var(--muted);font-style:italic}
+.prose code{font-family:ui-monospace,Menlo,monospace;font-size:.8em;background:var(--tint);padding:1px 5px;border-radius:4px}
+.prose a{color:var(--accent);text-decoration:underline;text-decoration-color:#c4d0ee;text-underline-offset:3px}
+.prose ul,.prose ol{margin:0 0 1.15em;padding-left:1.2em}
+.prose img{border-radius:8px}
+.pdf{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:18px 20px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted)}
+.pdf a{color:var(--accent);font-weight:500}
+footer{font-size:12.5px;color:var(--faint)}
+@media (prefers-reduced-motion:no-preference){.id,main{animation:in .5s ease both}main{animation-delay:.06s}@keyframes in{from{opacity:.001;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div id="app" class="wrap"><p class="empty">Loading…</p></div>
+<script>
+(function(){
+  "use strict";
+  var app = document.getElementById("app");
+  var site = null, writing = [];
+
+  var ICON = {
+    linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.1c0-1.22-.02-2.79-1.7-2.79-1.7 0-1.96 1.33-1.96 2.7V21h-4z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>',
+    github: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.75c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>'
+  };
+
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+  function safeUrl(u){ u = String(u||"").trim(); if(!u) return ""; if(!/^[a-z]+:/i.test(u) && /\./.test(u)) u = "https://" + u; return /^(https?:\/\/|mailto:)/i.test(u) ? u : ""; }
+  function host(u){ try{ var x = new URL(u); return x.hostname.replace(/^www\./,""); }catch(e){ return u; } }
+  function socialUrl(v, kind){
+    v = String(v||"").trim(); if(!v) return "";
+    if(/[./]/.test(v)) return safeUrl(v);
+    v = encodeURIComponent(v.replace(/^@/,""));
+    return kind === "linkedin" ? "https://www.linkedin.com/in/" + v : "https://www.instagram.com/" + v;
+  }
+  function initials(n){ var p = String(n||"").trim().split(/\s+/).filter(Boolean); return p.length ? (p[0][0] + (p.length>1 ? p[p.length-1][0] : "")).toUpperCase() : ""; }
+  function words(t){ return (String(t||"").match(/\S+/g)||[]).length; }
+  function fmtDate(d){ if(!d) return ""; var x = new Date(d + "T12:00:00"); return isNaN(x) ? d : x.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }
+  function titleFromFile(f){ var s = f.replace(/\.[^.]+$/,"").replace(/^\d{4}-\d{2}-\d{2}[-_ ]?/,"").replace(/[-_]+/g," ").trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1) : f; }
+  function dateFromFile(f){ var m = f.match(/^(\d{4}-\d{2}-\d{2})/); return m ? m[1] : ""; }
+  function slugOf(f){ return f.replace(/\.[^.]+$/,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); }
+
+  // Small Markdown subset: headings, quotes, lists, images, paragraphs, bold, italic, code, links.
+  function inline(s){
+    return esc(s)
+      .replace(/`([^`]+)`/g,"<code>$1</code>")
+      .replace(/!\[([^\]]*)\]\(([^\s)]+)\)/g,function(_,a,u){ return /^javascript:/i.test(u) ? "" : '<img alt="'+a+'" src="'+(/^https?:/i.test(u) ? u : "writing/"+u)+'">'; })
+      .replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*\s][^*]*)\*/g,"$1<em>$2</em>")
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+  function md(src){
+    return String(src||"").replace(/\r\n?/g,"\n").split(/\n{2,}/).map(function(b){
+      b = b.replace(/^\n+|\n+$/g,""); if(!b) return "";
+      var h = b.match(/^(#{1,3})\s+(.*)$/); if(h && b.indexOf("\n") < 0) return "<h"+(h[1].length===1?2:3)+">"+inline(h[2])+"</h"+(h[1].length===1?2:3)+">";
+      var lines = b.split("\n");
+      if(lines.every(function(l){ return /^>\s?/.test(l); })) return "<blockquote>"+inline(lines.map(function(l){ return l.replace(/^>\s?/,""); }).join(" "))+"</blockquote>";
+      if(lines.every(function(l){ return /^[-*]\s+/.test(l); })) return "<ul>"+lines.map(function(l){ return "<li>"+inline(l.replace(/^[-*]\s+/,""))+"</li>"; }).join("")+"</ul>";
+      if(lines.every(function(l){ return /^\d+[.)]\s+/.test(l); })) return "<ol>"+lines.map(function(l){ return "<li>"+inline(l.replace(/^\d+[.)]\s+/,""))+"</li>"; }).join("")+"</ol>";
+      return "<p>"+lines.map(inline).join("<br>")+"</p>";
+    }).join("");
+  }
+
+  // A writing file can start with optional front matter (title/date/summary), or just a "# Title" line.
+  function parseMarkdown(file, text){
+    var meta = {}, body = String(text).replace(/^﻿/,"");
+    var fm = body.match(/^---\s*\n([\s\S]*?)\n---\s*\n?/);
+    if(fm){ fm[1].split("\n").forEach(function(l){ var m = l.match(/^(\w+)\s*:\s*(.*)$/); if(m) meta[m[1].toLowerCase()] = m[2].replace(/^["']|["']$/g,"").trim(); }); body = body.slice(fm[0].length); }
+    if(!meta.title){ var h = body.match(/^\s*#\s+(.+)\n?/); if(h){ meta.title = h[1].trim(); body = body.slice(h[0].length); } }
+    return { file:file, slug:slugOf(file), kind:"text", title: meta.title || titleFromFile(file), date: meta.date || dateFromFile(file), summary: meta.summary || "", body: body.trim() };
+  }
+
+  // Find the repo: site.json "github" wins; otherwise work it out from a *.github.io address.
+  function repoGuess(){
+    if(site.github) return site.github.replace(/^https?:\/\/github\.com\//,"").replace(/\/$/,"");
+    var m = location.hostname.match(/^([^.]+)\.github\.io$/i); if(!m) return "";
+    var first = location.pathname.split("/").filter(Boolean)[0];
+    return m[1] + "/" + (first && !/\.html?$/.test(first) ? first : m[1] + ".github.io");
+  }
+  function listWritingFiles(){
+    var manual = Array.isArray(site.writing) ? site.writing.filter(Boolean) : [];
+    var repo = repoGuess();
+    if(!repo) return Promise.resolve(manual);
+    return fetch("https://api.github.com/repos/" + repo + "/contents/writing", {headers:{Accept:"application/vnd.github+json"}})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(items){ var files = items.filter(function(i){ return i.type === "file" && /\.(md|markdown|txt|pdf)$/i.test(i.name); }).map(function(i){ return i.name; });
+        manual.forEach(function(f){ if(files.indexOf(f) < 0) files.push(f); }); return files; })
+      .catch(function(){ return manual; });
+  }
+  function loadWriting(files){
+    return Promise.all(files.map(function(f){
+      if(/\.pdf$/i.test(f)) return { file:f, slug:slugOf(f), kind:"pdf", title:titleFromFile(f), date:dateFromFile(f), summary:"", body:"" };
+      return fetch("writing/" + encodeURIComponent(f)).then(function(r){ if(!r.ok) throw 0; return r.text(); })
+        .then(function(t){ return parseMarkdown(f, t); }).catch(function(){ return null; });
+    })).then(function(list){ return list.filter(Boolean).sort(function(a,b){ return String(b.date).localeCompare(String(a.date)) || a.title.localeCompare(b.title); }); });
+  }
+
+  function renderId(){
+    var n = String(site.name||"").trim(), social = [];
+    var li = socialUrl(site.linkedin,"linkedin"), ig = socialUrl(site.instagram,"instagram");
+    if(li) social.push('<li><a href="'+esc(li)+'" target="_blank" rel="noopener">'+ICON.linkedin+'LinkedIn</a></li>');
+    if(ig) social.push('<li><a href="'+esc(ig)+'" target="_blank" rel="noopener">'+ICON.instagram+'Instagram</a></li>');
+    (site.links||[]).forEach(function(l){ var u = safeUrl(l && l.url); if(!u || /^https:\/\/github\.com\/?$/.test(u)) return;
+      social.push('<li><a href="'+esc(u)+'" target="_blank" rel="noopener">'+(/github\.com/i.test(u) ? ICON.github : ICON.link)+esc(l.label || host(u))+'</a></li>'); });
+    var av = site.photo ? '<img src="'+esc(site.photo)+'" alt="">' : esc(initials(n));
+    return '<header class="id">'
+      + (av ? '<div class="avatar" aria-hidden="true">'+av+'</div>' : '')
+      + '<h1 class="name">'+esc(n)+'</h1>'
+      + (site.tagline ? '<p class="tagline">'+esc(site.tagline)+'</p>' : '')
+      + (site.about ? '<p class="about">'+esc(site.about)+'</p>' : '')
+      + (social.length ? '<ul class="social">'+social.join("")+'</ul>' : '')
+      + '</header>';
+  }
+  function renderProjects(){
+    var list = (site.projects||[]).filter(function(p){ return p && p.name; });
+    var rows = list.map(function(p){
+      var live = safeUrl(p.live), code = safeUrl(p.code), primary = live || code;
+      var chips = (live ? '<a class="chip" href="'+esc(live)+'" target="_blank" rel="noopener">Live site ↗</a>' : '')
+        + (code ? '<a class="chip" href="'+esc(code)+'" target="_blank" rel="noopener">'+(/github\.com/i.test(code) ? "GitHub" : "Source")+' ↗</a>' : '');
+      return '<article class="row"><div style="min-width:0"><h3>'+(primary ? '<a href="'+esc(primary)+'" target="_blank" rel="noopener">'+esc(p.name)+'</a>' : esc(p.name))+'</h3>'
+        + (p.description ? '<p>'+esc(p.description)+'</p>' : '') + (chips ? '<div class="chips">'+chips+'</div>' : '') + '</div>'
+        + '<div class="meta">'+esc(p.year||"")+'</div></article>';
+    }).join("");
+    return '<section id="projects" aria-labelledby="h-p"><div class="sec-head"><h2 id="h-p">Projects</h2><span class="count">'+String(list.length).padStart(2,"0")+'</span></div>'
+      + (rows || '<p class="empty">Nothing here yet.</p>') + '</section>';
+  }
+  function renderWriting(){
+    var rows = writing.map(function(w){
+      var info = w.kind === "pdf" ? "PDF" : Math.max(1, Math.round(words(w.body)/230)) + " min read";
+      return '<article class="row"><div style="min-width:0"><h3><a href="#w-'+esc(w.slug)+'">'+esc(w.title)+'</a></h3>'
+        + (w.summary ? '<p>'+esc(w.summary)+'</p>' : '') + '</div><div class="meta">'+esc(fmtDate(w.date))+(w.date?'<br>':'')+esc(info)+'</div></article>';
+    }).join("");
+    return '<section id="writing" aria-labelledby="h-w"><div class="sec-head"><h2 id="h-w">Writing</h2><span class="count">'+String(writing.length).padStart(2,"0")+'</span></div>'
+      + (rows || '<p class="empty">Nothing here yet.</p>') + '</section>';
+  }
+  function renderReader(w){
+    var body = w.kind === "pdf"
+      ? '<div class="pdf"><span>This piece is a PDF.</span><a href="writing/'+esc(encodeURIComponent(w.file))+'" target="_blank" rel="noopener">Open PDF ↗</a></div>'
+      : '<div class="prose">'+md(w.body)+'</div>';
+    return '<article class="reader"><a class="back" href="#writing">← All writing</a><h1>'+esc(w.title)+'</h1>'
+      + '<div class="rmeta">'+esc(fmtDate(w.date))+(w.kind==="pdf" ? "" : (w.date?" · ":"")+words(w.body).toLocaleString()+" words")+'</div>'+body+'</article>';
+  }
+  function render(){
+    var m = location.hash.match(/^#w-(.+)$/), w = m && writing.find(function(x){ return x.slug === m[1]; });
+    app.innerHTML = renderId() + '<main>' + (w ? renderReader(w) : renderProjects() + renderWriting()) + '</main>'
+      + '<footer>© ' + new Date().getFullYear() + ' ' + esc(site.name||"") + '</footer>';
+    document.title = (w ? w.title + " · " : "") + (site.name || "Projects & Writing");
+  }
+
+  window.addEventListener("hashchange", function(){
+    if(!site) return; render();
+    if(/^#w-/.test(location.hash)) window.scrollTo(0,0);
+    else if(location.hash){ var t = document.querySelector(location.hash); if(t) t.scrollIntoView(); }
+  });
+
+  fetch("site.json", {cache:"no-cache"})
+    .then(function(r){ if(!r.ok) throw new Error("site.json returned " + r.status); return r.json(); })
+    .then(function(d){ site = d; render(); return listWritingFiles(); })
+    .then(loadWriting)
+    .then(function(list){ writing = list; render(); })
+    .catch(function(e){ app.innerHTML = '<p class="empty">Could not load site.json. Check that it is valid JSON (a missing comma is the usual cause). ' + esc(e.message||"") + '</p>'; });
+})();
+</script>
+</body>
+</html>

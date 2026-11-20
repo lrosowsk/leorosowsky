@@ -1,0 +1,24 @@
+{
+  "name": "Your Name",
+  "tagline": "One line about you",
+  "about": "A few sentences about who you are and what you are working on.",
+
+  "linkedin": "",
+  "instagram": "",
+  "links": [
+    { "label": "GitHub", "url": "https://github.com/" }
+  ],
+
+  "projects": [
+    {
+      "name": "Example project (replace or delete me)",
+      "description": "One or two sentences about what it does.",
+      "live": "",
+      "code": "",
+      "year": "2026"
+    }
+  ],
+
+  "github": "",
+  "writing": []
+}
