@@ -1,12 +1,12 @@
 {
-  "name": "Your Name",
+  "name": "Leo Rosowsky",
   "tagline": "One line about you",
   "about": "A few sentences about who you are and what you are working on.",
 
-  "linkedin": "",
-  "instagram": "",
+  "linkedin": "https://www.linkedin.com/in/leorosowsky/",
+  "instagram": "https://www.instagram.com/leorosowsky/",
   "links": [
-    { "label": "GitHub", "url": "https://github.com/" }
+    { "label": "GitHub", "url": "https://github.com/lrosows" }
   ],
 
   "projects": [
