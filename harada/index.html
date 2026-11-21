@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Harada Tracker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap">
+<style>
+/* Layout: one quiet column for daily use; the 9×9 open-window chart widens out when editing.
+   Deliberately light-only: white paper, soft greys, ink-black checks. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ink: #1c1c1e;
+  --muted: #8a8a8e;
+  --faint: #c9c9cc;
+  --line: #ededef;
+  --accent: #1c1c1e;
+  --accent-soft: #f4f4f5;
+  --good: #3b7d5a;
+  --sans: "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --mono: var(--sans);
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap {
+  max-width: 720px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+.wrap.wide { max-width: 1020px; }
+
+/* Header */
+header { display: grid; gap: 18px; margin-bottom: 28px; }
+.goal-line { display: grid; gap: 4px; }
+.eyebrow { font-size: 13px; color: var(--muted); }
+h1 { margin: 0; font-family: var(--serif); font-size: clamp(28px, 5vw, 38px); font-weight: 300; line-height: 1.15; text-wrap: balance; letter-spacing: -0.01em; }
+h1.empty { color: var(--faint); }
+.deadline { font-family: var(--mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+nav.tabs a {
+  text-decoration: none; color: var(--muted); padding: 8px 12px 9px; font-size: 14px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+nav.tabs a:hover { color: var(--ink); }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+.status { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.notice { font-size: 13px; color: var(--muted); padding: 10px 12px; border: 1px dashed var(--line); border-radius: 6px; }
+
+/* Today */
+.daybar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.daybar .date { font-weight: 500; font-size: 17px; min-width: 9.5em; }
+.iconbtn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 50%; width: 32px; height: 32px;
+  display: inline-grid; place-items: center; color: var(--muted);
+}
+.iconbtn:hover:not(:disabled) { color: var(--ink); border-color: var(--faint); }
+.iconbtn:disabled { opacity: .35; cursor: default; }
+.textbtn { border: none; background: none; color: var(--accent); font-size: 13px; padding: 4px 6px; }
+.textbtn:hover { text-decoration: underline; }
+
+.summary {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); margin-bottom: 36px;
+}
+.summary div { padding: 16px 14px 14px; display: grid; gap: 2px; }
+.summary div + div { border-left: 1px solid var(--line); }
+.summary .n { font-family: var(--serif); font-size: 30px; font-weight: 300; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.summary .n small { color: var(--muted); font-size: 13px; }
+.summary .l { font-size: 12px; color: var(--muted); }
+@media (max-width: 520px) {
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .summary div:nth-child(3) { border-left: none; }
+  .summary div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+
+section.group { margin-bottom: 30px; }
+.group-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.group-head h2 { margin: 0; font-size: 14px; font-weight: 500; color: var(--ink); }
+.group-head .period { font-family: var(--mono); font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+ul.items { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: start; padding: 14px 2px; border-bottom: 1px solid var(--line); }
+.item .text { min-width: 0; overflow-wrap: anywhere; }
+.item .pillar { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+.item .meta { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; white-space: nowrap; padding-top: 3px; font-variant-numeric: tabular-nums; }
+.item .meta .hit { color: var(--good); }
+.item.done .text > span:first-child { color: var(--muted); }
+
+.check {
+  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--faint); background: var(--surface);
+  display: grid; place-items: center; padding: 0; margin-top: 1px; transition: background .12s, border-color .12s;
+}
+.check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .12s; }
+.check:hover:not(:disabled) { border-color: var(--accent); }
+.check[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.check[aria-checked="true"] svg { opacity: 1; color: var(--surface); }
+.check.met { border-color: var(--faint); background: var(--accent-soft); }
+.check.met svg { opacity: 1; color: var(--muted); }
+.check:disabled { cursor: default; }
+
+details.completed { margin-top: 10px; }
+details.completed summary { font-size: 13px; color: var(--muted); cursor: pointer; padding: 4px 0; }
+
+.empty-state { padding: 40px 0; display: grid; gap: 10px; justify-items: start; max-width: 46ch; }
+.empty-state p { margin: 0; color: var(--muted); }
+.btn {
+  border: 1px solid var(--ink); background: var(--ink); color: var(--bg); border-radius: 999px; padding: 9px 18px; font-size: 14px; font-weight: 500;
+}
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--faint); }
+.btn.danger { background: transparent; color: var(--muted); border-color: transparent; padding-inline: 4px; }
+.btn.danger:hover { color: var(--ink); }
+
+/* Chart */
+.chart-intro { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; margin-bottom: 14px; }
+.chart-intro p { margin: 0; color: var(--muted); font-size: 13px; max-width: 60ch; }
+.legend { font-family: var(--mono); font-size: 11px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.legend .lg-done::before { background: var(--accent); }
+.legend .lg-open::before { border: 1px solid var(--faint); }
+
+.chart-scroll { overflow-x: auto; padding-bottom: 8px; margin-inline: -4px; padding-inline: 4px; }
+.chart { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; min-width: 760px; }
+.block { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.cell {
+  aspect-ratio: 1; max-width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px;
+  text-align: left; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-width: 0; position: relative;
+  font-size: 11.5px; line-height: 1.3;
+}
+.cell:hover { border-color: var(--faint); }
+.cell .ct { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.cell .ph { color: var(--faint); }
+.cell .tag { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .02em; display: flex; justify-content: space-between; align-items: center; }
+.cell .dot { width: 7px; height: 7px; border-radius: 2px; border: 1px solid var(--faint); }
+.cell .dot.on { background: var(--accent); border-color: var(--accent); }
+.cell.pillar { background: var(--accent-soft); border-color: transparent; font-weight: 500; }
+.cell.pillar:hover { border-color: var(--faint); }
+.cell.pillar .num { font-family: var(--mono); font-size: 10.5px; color: var(--muted); font-weight: 400; }
+.cell.goal { background: var(--ink); color: var(--bg); border-color: var(--ink); font-family: var(--serif); font-weight: 400; font-size: 14px; }
+.cell.goal .ph { color: var(--muted); }
+.cell.goal .num { font-family: var(--mono); font-size: 10.5px; opacity: .6; font-weight: 400; }
+
+/* Record */
+.rec-pillar { margin-bottom: 28px; }
+.rec-pillar h3 { margin: 0 0 6px; font-size: 14px; font-weight: 500; }
+.rec-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 9px 0; border-top: 1px solid var(--line); }
+.rec-row .t { min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+.rec-row .t small { display: block; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.strip { display: grid; grid-auto-flow: column; gap: 2px; }
+.strip i { width: 8px; height: 18px; border-radius: 4px; background: var(--line); display: block; }
+.strip i.on { background: var(--accent); }
+.strip i.part { background: var(--faint); }
+.strip i.na { background: transparent; box-shadow: inset 0 0 0 1px var(--line); opacity: .5; }
+.rate { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 4ch; text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) {
+  .rec-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .rec-row .strip { grid-column: 1 / -1; grid-row: 2; justify-content: start; }
+  .strip i { width: 7px; }
+}
+
+/* Editor */
+.overlay { position: fixed; inset: 0; background: rgba(28, 28, 30, .22); backdrop-filter: blur(2px); display: grid; place-items: center; z-index: 20; padding: 16px; }
+.sheet {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 16px; width: min(460px, 100%); padding: 24px;
+  box-shadow: 0 20px 60px rgba(28, 28, 30, .12);
+  display: grid; gap: 16px; max-height: calc(100% - 32px); overflow-y: auto;
+}
+.sheet h2 { margin: 0; font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--ink); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; color: var(--muted); }
+.field textarea, .field input[type="date"] {
+  width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 9px 10px; resize: vertical; font-size: 15px;
+}
+.field textarea:focus, .field input:focus { outline: none; border-color: var(--accent); }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: none; background: transparent; padding: 8px 4px; font-size: 13px; color: var(--muted); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.stepper { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.stepper output { font-family: var(--mono); min-width: 2ch; text-align: center; font-variant-numeric: tabular-nums; }
+.hint { font-size: 12px; color: var(--muted); margin: 0; }
+.sheet-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
+.sheet-actions .spacer { flex: 1; }
+@media (max-width: 520px) {
+  .overlay { place-items: end center; padding: 0; }
+  .sheet { border-radius: 12px 12px 0 0; padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); max-height: 92%; }
+}
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg);
+  padding: 9px 14px; border-radius: 6px; font-size: 13px; z-index: 30; max-width: calc(100% - 32px);
+}
+footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" id="wrap">
+  <header>
+    <div class="goal-line">
+      <span class="eyebrow">Long-term goal</span>
+      <h1 id="goalTitle" class="empty">Loading…</h1>
+      <span class="deadline" id="deadline"></span>
+    </div>
+    <nav class="tabs" aria-label="Views">
+      <a href="#today" data-view="today">Today</a>
+      <a href="#chart" data-view="chart">Chart</a>
+      <a href="#record" data-view="record">Record</a>
+    </nav>
+  </header>
+  <main id="main"><p class="status">Loading your chart…</p></main>
+  <footer id="footer"></footer>
+</div>
+<div id="layer"></div>
+
+<script>
+(() => {
+  'use strict';
+  const NP = 8, NA = 8;
+  const FREQS = ['daily', 'weekly', 'monthly', 'once'];
+  const FREQ_LABEL = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', once: 'Once' };
+  const CHECK_SVG = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+
+  // ---------- state ----------
+  let plan = emptyPlan();
+  let logs = {};            // actionId -> { 'YYYY-MM-DD': 1 }
+  let ready = false;
+  let mode = 'pending';     // 'db' | 'local'
+  let readOnly = false;
+  let staleNote = '';
+  let sel = today();
+  let editing = null;
+
+  function emptyPlan() {
+    return {
+      goal: '', why: '', by: '',
+      pillars: Array.from({ length: NP }, () => ({
+        title: '',
+        actions: Array.from({ length: NA }, () => ({ text: '', freq: 'daily', target: 1, since: '' }))
+      }))
+    };
+  }
+  function normalizePlan(d) {
+    const p = emptyPlan();
+    if (!d || typeof d !== 'object') return p;
+    p.goal = str(d.goal); p.why = str(d.why); p.by = str(d.by);
+    (Array.isArray(d.pillars) ? d.pillars : []).slice(0, NP).forEach((pl, i) => {
+      if (!pl) return;
+      p.pillars[i].title = str(pl.title);
+      (Array.isArray(pl.actions) ? pl.actions : []).slice(0, NA).forEach((a, j) => {
+        if (!a) return;
+        const t = p.pillars[i].actions[j];
+        t.text = str(a.text);
+        t.freq = FREQS.includes(a.freq) ? a.freq : 'daily';
+        t.target = clampInt(a.target, 1, t.freq === 'monthly' ? 31 : 7, 1);
+        t.since = /^\d{4}-\d{2}-\d{2}$/.test(a.since) ? a.since : '';
+      });
+    });
+    return p;
+  }
+  function str(v) { return typeof v === 'string' ? v : ''; }
+  function clampInt(v, lo, hi, dflt) { v = Math.round(Number(v)); return Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : dflt; }
+  const aid = (i, j) => 'p' + i + 'a' + j;
+
+  // ---------- dates ----------
+  function today() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function key(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function parseKey(k) { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); }
+  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function weekStart(d) { return addDays(d, -((d.getDay() + 6) % 7)); }
+  function monthStart(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function monthEnd(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
+  function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
+  const fmtDay = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+  const fmtShort = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
+  const fmtMonth = new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' });
+  const fmtLong = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+  function sameDay(a, b) { return key(a) === key(b); }
+
+  // ---------- tracking logic ----------
+  function days(id) { return logs[id] || {}; }
+  function countIn(id, from, to) {
+    const ds = days(id), a = key(from), b = key(to);
+    let n = 0; for (const k in ds) if (k >= a && k <= b) n++;
+    return n;
+  }
+  function periodOf(freq, d) {
+    if (freq === 'weekly') { const s = weekStart(d); return [s, addDays(s, 6)]; }
+    if (freq === 'monthly') return [monthStart(d), monthEnd(d)];
+    return [d, d];
+  }
+  function onceDoneKey(id) { const ks = Object.keys(days(id)).sort(); return ks[0] || ''; }
+  function status(id, a, d) {
+    const k = key(d), ds = days(id);
+    if (a.freq === 'once') {
+      const dk = onceDoneKey(id);
+      return { checked: !!dk && dk <= k, met: !!dk && dk <= k, doneOn: dk };
+    }
+    const [s, e] = periodOf(a.freq, d);
+    const count = a.freq === 'daily' ? (ds[k] ? 1 : 0) : countIn(id, s, e);
+    const target = a.freq === 'daily' ? 1 : a.target;
+    return { checked: !!ds[k], count, target, met: count >= target };
+  }
+  function streak(id, a, d) {
+    const since = a.since || '0000';
+    if (a.freq === 'daily') {
+      let c = days(id)[key(d)] ? d : addDays(d, -1), n = 0;
+      while (n < 3660 && key(c) >= since && days(id)[key(c)]) { n++; c = addDays(c, -1); }
+      return n;
+    }
+    if (a.freq === 'weekly' || a.freq === 'monthly') {
+      const step = a.freq === 'weekly' ? (x => addDays(weekStart(x), -7)) : (x => addMonths(x, -1));
+      let c = d, n = 0;
+      if (!status(id, a, c).met) c = step(c);
+      while (n < 600) {
+        const [s, e] = periodOf(a.freq, c);
+        if (key(e) < since) break;
+        if (countIn(id, s, e) >= a.target) { n++; c = step(c); } else break;
+      }
+      return n;
+    }
+    return 0;
+  }
+  function activeActions(d) {
+    const k = d ? key(d) : null, out = [];
+    plan.pillars.forEach((p, i) => p.actions.forEach((a, j) => {
+      if (!a.text.trim()) return;
+      if (k && a.since && a.since > k) return;
+      out.push({ id: aid(i, j), a, i, j, pillar: p.title.trim() || ('Pillar ' + (i + 1)) });
+    }));
+    return out;
+  }
+
+  // ---------- storage ----------
+  let db = null;
+  const queues = {};
+  const LS_KEY = 'harada-tracker-v1';
+
+  function loadLocal() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (raw) { const o = JSON.parse(raw); plan = normalizePlan(o.plan); logs = o.logs && typeof o.logs === 'object' ? o.logs : {}; }
+    } catch (e) { /* storage unavailable */ }
+  }
+  function saveLocal() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ plan, logs })); } catch (e) { /* ignore */ }
+  }
+  function writeDoc(docId, body) {
+    if (mode === 'local') { saveLocal(); return; }
+    if (!db || readOnly) return;
+    const q = queues[docId] || (queues[docId] = { busy: false, next: null });
+    q.next = body;
+    if (!q.busy) flush(docId);
+  }
+  async function flush(docId) {
+    const q = queues[docId]; q.busy = true;
+    while (q.next) {
+      const body = q.next; q.next = null;
+      try { await db.doc('harada/' + docId).set(body); }
+      catch (e) {
+        const code = e && e.code;
+        if (code === 'unavailable') {
+          await new Promise(r => setTimeout(r, 600 + Math.random() * 800));
+          try { await db.doc('harada/' + docId).set(body); continue; } catch (e2) { toast('Could not save. Check your connection and try again.'); }
+        } else if (code === 'invalid_argument' || code === 'not_granted' || code === 'revoked') {
+          readOnly = true; render(); toast('This tracker is view-only for you.');
+        } else if (code === 'quota_exceeded') {
+          toast('Storage is full, so this change was not saved.');
+        } else {
+          toast('Could not save that change.');
+        }
+      }
+    }
+    q.busy = false;
+  }
+  const savePlan = () => writeDoc('plan', JSON.parse(JSON.stringify(plan)));
+  const saveLog = id => writeDoc('log-' + id, { days: { ...days(id) } });
+
+  async function initStore() {
+    let cap = null;
+    try { cap = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { cap = null; }
+    if (!cap) { mode = 'local'; loadLocal(); ready = true; render(); return; }
+    db = cap; mode = 'db';
+    try {
+      const user = await window.claude.use('user');
+      if (user && !(await user.isOwner())) readOnly = true;
+    } catch (e) { /* keep editable; refused writes decide */ }
+    const timer = setTimeout(() => {
+      staleNote = ready ? 'Showing saved copy. It may be out of date.' : 'Your saved data can’t be reached yet.';
+      if (!ready) { ready = true; }
+      render();
+    }, 10000);
+    db.collection('harada').onSnapshot(snap => {
+      const nextLogs = {};
+      let nextPlan = null;
+      snap.docs.forEach(doc => {
+        const d = doc.data() || {};
+        if (doc.id === 'plan') nextPlan = normalizePlan(d);
+        else if (doc.id.startsWith('log-')) nextLogs[doc.id.slice(4)] = d.days && typeof d.days === 'object' ? { ...d.days } : {};
+      });
+      plan = nextPlan || emptyPlan();
+      logs = nextLogs;
+      if (!snap.metadata.fromCache) { clearTimeout(timer); staleNote = ''; }
+      ready = true;
+      if (!editing) render(); else renderHeader();
+    }, err => {
+      clearTimeout(timer);
+      staleNote = 'Your saved data can’t be reached right now.';
+      ready = true; render();
+    });
+  }
+
+  // ---------- actions ----------
+  function toggle(id) {
+    if (readOnly) return;
+    const [i, j] = id.slice(1).split('a').map(Number);
+    const a = plan.pillars[i].actions[j];
+    const ds = { ...days(id) };
+    const k = key(sel);
+    if (a.freq === 'once') {
+      if (onceDoneKey(id) && onceDoneKey(id) <= k) { for (const x in ds) delete ds[x]; }
+      else ds[k] = 1;
+    } else if (ds[k]) delete ds[k];
+    else ds[k] = 1;
+    logs[id] = ds;
+    saveLog(id);
+    render();
+  }
+
+  // ---------- rendering ----------
+  const $ = s => document.querySelector(s);
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function view() { const h = location.hash.slice(1); return ['today', 'chart', 'record'].includes(h) ? h : 'today'; }
+
+  function renderHeader() {
+    const t = $('#goalTitle');
+    if (!ready) { t.textContent = 'Loading…'; t.className = 'empty'; return; }
+    if (plan.goal.trim()) { t.textContent = plan.goal; t.className = ''; }
+    else { t.textContent = 'No goal written yet'; t.className = 'empty'; }
+    const dl = $('#deadline');
+    if (plan.by) {
+      const left = Math.round((parseKey(plan.by) - today()) / 864e5);
+      dl.textContent = 'By ' + fmtLong.format(parseKey(plan.by)) + ' · ' + (left > 0 ? left + ' days left' : left === 0 ? 'today' : Math.abs(left) + ' days past');
+    } else dl.textContent = '';
+    document.querySelectorAll('nav.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.view === view() ? 'page' : 'false'));
+    $('#wrap').classList.toggle('wide', view() === 'chart');
+    const f = [];
+    if (mode === 'local') f.push('Saved in this browser only');
+    if (readOnly) f.push('View only');
+    $('#footer').textContent = f.join(' · ');
+  }
+
+  function render() {
+    renderHeader();
+    if (!ready) return;
+    const v = view();
+    const m = $('#main');
+    let html = '';
+    if (staleNote) html += `<p class="notice">${esc(staleNote)}</p><br>`;
+    if (readOnly && v !== 'record') html += `<p class="notice">You can see this tracker, but only its owner can check things off or edit it.</p><br>`;
+    html += v === 'chart' ? chartHTML() : v === 'record' ? recordHTML() : todayHTML();
+    m.innerHTML = html;
+  }
+
+  function emptyState() {
+    return `<div class="empty-state">
+      <p>Nothing to track yet. Write your long-term goal, the eight pillars that support it, and the actions under each pillar. Give every action a rhythm: daily, weekly, monthly, or once.</p>
+      <a class="btn" href="#chart" style="text-decoration:none">Open the chart</a>
+    </div>`;
+  }
+
+  function todayHTML() {
+    const acts = activeActions(sel);
+    const isToday = sameDay(sel, today());
+    let h = `<div class="daybar">
+      <button class="iconbtn" data-act="prev" aria-label="Previous day">&lsaquo;</button>
+      <span class="date">${isToday ? 'Today, ' : ''}${esc(fmtDay.format(sel))}</span>
+      <button class="iconbtn" data-act="next" aria-label="Next day" ${isToday ? 'disabled' : ''}>&rsaquo;</button>
+      ${isToday ? '' : '<button class="textbtn" data-act="today">Back to today</button>'}
+    </div>`;
+    if (!acts.length && !activeActions(null).length) return h + emptyState();
+
+    const by = f => acts.filter(x => x.a.freq === f);
+    const daily = by('daily'), weekly = by('weekly'), monthly = by('monthly'), once = by('once');
+    const metN = arr => arr.filter(x => status(x.id, x.a, sel).met).length;
+    const onceOpen = once.filter(x => !status(x.id, x.a, sel).met);
+    const onceDone = once.filter(x => status(x.id, x.a, sel).met);
+
+    h += `<div class="summary">
+      <div><span class="n">${metN(daily)}<small>/${daily.length}</small></span><span class="l">Daily done</span></div>
+      <div><span class="n">${metN(weekly)}<small>/${weekly.length}</small></span><span class="l">Weekly met</span></div>
+      <div><span class="n">${metN(monthly)}<small>/${monthly.length}</small></span><span class="l">Monthly met</span></div>
+      <div><span class="n">${onceDone.length}<small>/${once.length}</small></span><span class="l">Tasks finished</span></div>
+    </div>`;
+
+    if (!isToday) h += `<p class="notice">You’re looking at ${esc(fmtDay.format(sel))}. Checks here are recorded for that day.</p><br>`;
+
+    const ws = weekStart(sel);
+    if (daily.length) h += group('Daily', esc(fmtShort.format(sel)), sortOpen(daily));
+    if (weekly.length) h += group('This week', esc(fmtShort.format(ws) + ' – ' + fmtShort.format(addDays(ws, 6))), sortOpen(weekly));
+    if (monthly.length) h += group('This month', esc(fmtMonth.format(sel)), sortOpen(monthly));
+    if (once.length) {
+      h += `<section class="group"><div class="group-head"><h2>One-time</h2><span class="period">${onceOpen.length} open</span></div>`;
+      h += onceOpen.length ? `<ul class="items">${onceOpen.map(itemHTML).join('')}</ul>` : `<p class="hint">Every one-time action is finished.</p>`;
+      if (onceDone.length) h += `<details class="completed"><summary>Finished (${onceDone.length})</summary><ul class="items">${onceDone.map(itemHTML).join('')}</ul></details>`;
+      h += `</section>`;
+    }
+    return h;
+  }
+  function sortOpen(arr) {
+    return arr.slice().sort((x, y) => (status(x.id, x.a, sel).met - status(y.id, y.a, sel).met) || (x.i - y.i) || (x.j - y.j));
+  }
+  function group(title, period, arr) {
+    return `<section class="group"><div class="group-head"><h2>${title}</h2><span class="period">${period}</span></div>
+      <ul class="items">${arr.map(itemHTML).join('')}</ul></section>`;
+  }
+  function itemHTML(x) {
+    const s = status(x.id, x.a, sel);
+    let meta = '';
+    let cls = '';
+    if (x.a.freq === 'once') {
+      meta = s.met ? 'Done ' + esc(fmtShort.format(parseKey(s.doneOn))) : '';
+    } else {
+      const st = streak(x.id, x.a, sel);
+      const unit = x.a.freq === 'daily' ? 'd' : x.a.freq === 'weekly' ? 'w' : 'mo';
+      const parts = [];
+      if (x.a.freq !== 'daily') parts.push(`<span class="${s.met ? 'hit' : ''}">${s.count}/${s.target}</span>`);
+      if (st > 0) parts.push(st + unit + ' streak');
+      meta = parts.join(' · ');
+      if (s.met && !s.checked) cls = 'met';
+    }
+    const label = x.a.freq === 'once' ? (s.checked ? 'Mark not done' : 'Mark done')
+      : (s.checked ? 'Uncheck for this day' : 'Check off for this day');
+    return `<li class="item ${s.met ? 'done' : ''}">
+      <button class="check ${cls}" role="checkbox" aria-checked="${s.checked}" aria-label="${esc(label)}: ${esc(x.a.text)}" data-toggle="${x.id}" ${readOnly ? 'disabled' : ''}>${CHECK_SVG}</button>
+      <span class="text"><span>${esc(x.a.text)}</span><span class="pillar">${esc(x.pillar)}</span></span>
+      <span class="meta">${meta}</span>
+    </li>`;
+  }
+
+  // Chart: 3×3 blocks; block 4 is the centre (goal + pillars), others are pillar blocks.
+  const RING = [0, 1, 2, 3, 5, 6, 7, 8]; // positions around a centre in a 3×3
+  function chartHTML() {
+    const t = today();
+    let blocks = '';
+    for (let b = 0; b < 9; b++) {
+      let cells = '';
+      if (b === 4) {
+        for (let c = 0; c < 9; c++) {
+          if (c === 4) cells += `<button class="cell goal" data-edit="goal"><span class="ct">${plan.goal.trim() ? esc(plan.goal) : '<span class="ph">Long-term goal</span>'}</span><span class="num">Goal</span></button>`;
+          else { const i = RING.indexOf(c); cells += pillarCell(i); }
+        }
+      } else {
+        const i = RING.indexOf(b);
+        for (let c = 0; c < 9; c++) {
+          if (c === 4) cells += pillarCell(i);
+          else cells += actionCell(i, RING.indexOf(c), t);
+        }
+      }
+      blocks += `<div class="block">${cells}</div>`;
+    }
+    return `<div class="chart-intro">
+        <p>Your goal sits in the centre, surrounded by eight pillars. Each pillar has eight actions around it. Click any square to write it and set how often it repeats.</p>
+        <span class="legend"><span class="lg-done">Done this period</span><span class="lg-open">Not yet</span></span>
+      </div>
+      <div class="chart-scroll"><div class="chart">${blocks}</div></div>
+      ${plan.why.trim() ? `<div style="margin-top:24px;max-width:65ch"><span class="eyebrow">Why it matters</span><p style="margin:4px 0 0;white-space:pre-wrap">${esc(plan.why)}</p></div>` : ''}`;
+  }
+  function pillarCell(i) {
+    const p = plan.pillars[i];
+    return `<button class="cell pillar" data-edit="pillar:${i}"><span class="ct">${p.title.trim() ? esc(p.title) : '<span class="ph">+</span>'}</span><span class="num">Pillar ${i + 1}</span></button>`;
+  }
+  function freqTag(a) {
+    if (a.freq === 'weekly') return a.target > 1 ? a.target + '×/wk' : 'Weekly';
+    if (a.freq === 'monthly') return a.target > 1 ? a.target + '×/mo' : 'Monthly';
+    return FREQ_LABEL[a.freq];
+  }
+  function actionCell(i, j, t) {
+    const a = plan.pillars[i].actions[j];
+    if (!a.text.trim()) return `<button class="cell" data-edit="action:${i}:${j}" aria-label="Add action ${j + 1} for pillar ${i + 1}"><span class="ct"><span class="ph">+</span></span><span></span></button>`;
+    const s = status(aid(i, j), a, t);
+    return `<button class="cell" data-edit="action:${i}:${j}"><span class="ct">${esc(a.text)}</span><span class="tag"><span>${freqTag(a)}</span><span class="dot ${s.met ? 'on' : ''}"></span></span></button>`;
+  }
+
+  function recordHTML() {
+    const t = today();
+    const acts = activeActions(null);
+    if (!acts.length) return emptyState();
+    let h = `<p class="hint" style="margin-bottom:22px">Daily actions show the last 28 days, weekly the last 12 weeks, monthly the last 12 months. Periods before an action was added are left blank. The percentage counts only periods since it was added.</p>`;
+    plan.pillars.forEach((p, i) => {
+      const rows = acts.filter(x => x.i === i);
+      if (!rows.length) return;
+      h += `<section class="rec-pillar"><h3>${esc(p.title.trim() || 'Pillar ' + (i + 1))}</h3>`;
+      rows.forEach(x => {
+        if (x.a.freq === 'once') {
+          const dk = onceDoneKey(x.id);
+          h += `<div class="rec-row"><span class="t">${esc(x.a.text)}<small>Once</small></span><span class="rate" style="width:auto">${dk ? 'Done ' + esc(fmtShort.format(parseKey(dk))) : 'Open'}</span><span></span></div>`;
+          return;
+        }
+        const since = x.a.since || '0000';
+        const cells = [];
+        let hit = 0, elig = 0;
+        if (x.a.freq === 'daily') {
+          for (let n = 27; n >= 0; n--) {
+            const d = addDays(t, -n), k = key(d);
+            if (k < since) { cells.push('na'); continue; }
+            const on = !!days(x.id)[k];
+            if (n > 0 || on) { elig++; if (on) hit++; }
+            cells.push(on ? 'on' : '');
+          }
+        } else {
+          const n0 = 11;
+          for (let n = n0; n >= 0; n--) {
+            const d = x.a.freq === 'weekly' ? addDays(weekStart(t), -7 * n) : addMonths(t, -n);
+            const [s, e] = periodOf(x.a.freq, d);
+            if (key(e) < since) { cells.push('na'); continue; }
+            const c = countIn(x.id, s, e), met = c >= x.a.target;
+            if (n > 0 || met) { elig++; if (met) hit++; }
+            cells.push(met ? 'on' : c > 0 ? 'part' : '');
+          }
+        }
+        const rate = elig ? Math.round(100 * hit / elig) + '%' : '–';
+        h += `<div class="rec-row"><span class="t">${esc(x.a.text)}<small>${freqTag(x.a)}</small></span>
+          <span class="strip" aria-hidden="true">${cells.map(c => `<i class="${c}"></i>`).join('')}</span>
+          <span class="rate">${rate}</span></div>`;
+      });
+      h += `</section>`;
+    });
+    return h;
+  }
+
+  // ---------- editor ----------
+  function openEditor(target) {
+    if (readOnly) return;
+    const [kind, a, b] = target.split(':');
+    if (kind === 'goal') editing = { kind, goal: plan.goal, why: plan.why, by: plan.by };
+    else if (kind === 'pillar') editing = { kind, i: +a, title: plan.pillars[+a].title };
+    else { const act = plan.pillars[+a].actions[+b]; editing = { kind, i: +a, j: +b, text: act.text, freq: act.freq, target: act.target }; }
+    editing.returnFocus = target;
+    renderEditor();
+  }
+  function renderEditor() {
+    const e = editing, L = $('#layer');
+    if (!e) { L.innerHTML = ''; return; }
+    let body = '';
+    if (e.kind === 'goal') {
+      body = `<h2>Long-term goal</h2>
+        <div class="field"><label for="f-goal">Goal</label><textarea id="f-goal" rows="3">${esc(e.goal)}</textarea></div>
+        <div class="field"><label for="f-by">Achieve by</label><input type="date" id="f-by" value="${esc(e.by)}"></div>
+        <div class="field"><label for="f-why">Why it matters</label><textarea id="f-why" rows="3">${esc(e.why)}</textarea></div>`;
+    } else if (e.kind === 'pillar') {
+      body = `<h2>Pillar ${e.i + 1}</h2>
+        <div class="field"><label for="f-title">What has to be true for the goal to happen?</label><textarea id="f-title" rows="2">${esc(e.title)}</textarea></div>`;
+    } else {
+      const pt = plan.pillars[e.i].title.trim() || 'Pillar ' + (e.i + 1);
+      const max = e.freq === 'monthly' ? 31 : 7;
+      body = `<h2>${esc(pt)} · Action ${e.j + 1}</h2>
+        <div class="field"><label for="f-text">Action</label><textarea id="f-text" rows="2">${esc(e.text)}</textarea></div>
+        <div class="field"><label id="l-freq">How often</label>
+          <div class="seg" role="group" aria-labelledby="l-freq">${FREQS.map(f => `<button type="button" data-freq="${f}" aria-pressed="${e.freq === f}">${FREQ_LABEL[f]}</button>`).join('')}</div>
+        </div>
+        ${e.freq === 'weekly' || e.freq === 'monthly' ? `<div class="field"><label>Times per ${e.freq === 'weekly' ? 'week' : 'month'}</label>
+          <div class="stepper"><button type="button" class="iconbtn" data-step="-1" aria-label="Fewer" ${e.target <= 1 ? 'disabled' : ''}>−</button><output>${e.target}</output><button type="button" class="iconbtn" data-step="1" aria-label="More" ${e.target >= max ? 'disabled' : ''}>+</button></div>
+        </div>` : ''}
+        <p class="hint">${freqHint(e)}</p>`;
+    }
+    const canClear = e.kind === 'action' ? !!plan.pillars[e.i].actions[e.j].text : false;
+    L.innerHTML = `<div class="overlay" data-close="1"><form class="sheet" id="editor" role="dialog" aria-modal="true" aria-label="Edit">
+      ${body}
+      <div class="sheet-actions">
+        ${canClear ? '<button type="button" class="btn danger" data-clear="1">Remove action</button>' : ''}
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close="1">Cancel</button>
+        <button type="submit" class="btn">Save</button>
+      </div></form></div>`;
+    const first = L.querySelector('textarea');
+    if (first && !e.focused) { first.focus(); first.setSelectionRange(first.value.length, first.value.length); e.focused = true; }
+  }
+  function freqHint(e) {
+    if (e.freq === 'daily') return 'Shows up every day. Check it off each day you do it.';
+    if (e.freq === 'weekly') return e.target > 1 ? `Check it off on each day you do it. The week counts once you reach ${e.target}. Weeks run Monday to Sunday.` : 'Check it off once in any day of the week. Weeks run Monday to Sunday.';
+    if (e.freq === 'monthly') return e.target > 1 ? `Check it off on each day you do it. The month counts once you reach ${e.target}.` : 'Check it off once at any point in the month.';
+    return 'A single task. It stays open until you check it off.';
+  }
+  function captureEditor() {
+    const e = editing; if (!e) return;
+    const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+    if (e.kind === 'goal') { e.goal = v('f-goal'); e.why = v('f-why'); e.by = v('f-by'); }
+    else if (e.kind === 'pillar') e.title = v('f-title');
+    else e.text = v('f-text');
+  }
+  function closeEditor() {
+    const rf = editing && editing.returnFocus;
+    editing = null; renderEditor(); render();
+    if (rf) { const el = document.querySelector(`[data-edit="${rf}"]`); if (el) el.focus(); }
+  }
+  function saveEditor() {
+    captureEditor();
+    const e = editing;
+    if (e.kind === 'goal') { plan.goal = e.goal.trim(); plan.why = e.why.trim(); plan.by = e.by || ''; }
+    else if (e.kind === 'pillar') plan.pillars[e.i].title = e.title.trim();
+    else {
+      const act = plan.pillars[e.i].actions[e.j];
+      const text = e.text.trim();
+      if (text && !act.since) act.since = key(today());
+      if (!text) act.since = '';
+      act.text = text; act.freq = e.freq; act.target = e.freq === 'weekly' || e.freq === 'monthly' ? e.target : 1;
+    }
+    savePlan();
+    closeEditor();
+  }
+  function clearAction() {
+    const e = editing;
+    const act = plan.pillars[e.i].actions[e.j];
+    act.text = ''; act.since = ''; act.freq = 'daily'; act.target = 1;
+    const id = aid(e.i, e.j);
+    if (logs[id] && Object.keys(logs[id]).length) { logs[id] = {}; saveLog(id); }
+    savePlan();
+    closeEditor();
+    toast('Action removed');
+  }
+
+  // ---------- toast ----------
+  let toastTimer;
+  function toast(msg) {
+    let t = document.querySelector('.toast');
+    if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+
+  // ---------- events ----------
+  document.addEventListener('click', ev => {
+    const el = ev.target.closest('button, .overlay');
+    if (!el) return;
+    if (el.dataset.toggle) return toggle(el.dataset.toggle);
+    if (el.dataset.edit) return openEditor(el.dataset.edit);
+    const act = el.dataset.act;
+    if (act === 'prev') { sel = addDays(sel, -1); return render(); }
+    if (act === 'next') { const n = addDays(sel, 1); if (n <= today()) sel = n; return render(); }
+    if (act === 'today') { sel = today(); return render(); }
+    if (!editing) return;
+    if (el.dataset.close && (el.tagName === 'BUTTON' || ev.target === el)) return closeEditor();
+    if (el.dataset.clear) return clearAction();
+    if (el.dataset.freq) { captureEditor(); editing.freq = el.dataset.freq; editing.target = clampInt(editing.target, 1, editing.freq === 'monthly' ? 31 : 7, 1); return renderEditor(); }
+    if (el.dataset.step) { captureEditor(); const max = editing.freq === 'monthly' ? 31 : 7; editing.target = clampInt(editing.target + Number(el.dataset.step), 1, max, 1); return renderEditor(); }
+  });
+  document.addEventListener('submit', ev => { if (ev.target.id === 'editor') { ev.preventDefault(); saveEditor(); } });
+  document.addEventListener('keydown', ev => {
+    if (!editing) return;
+    if (ev.key === 'Escape') closeEditor();
+    if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); saveEditor(); }
+  });
+  window.addEventListener('hashchange', () => { if (editing) { editing = null; renderEditor(); } render(); });
+  // Roll over to a new day if the page stays open past midnight.
+  let lastToday = key(today());
+  setInterval(() => {
+    const k = key(today());
+    if (k !== lastToday) { if (key(sel) === lastToday) sel = today(); lastToday = k; if (!editing) render(); }
+  }, 60000);
+
+  render();
+  initStore();
+})();
+</script>
+
+</body>
+
+</html>

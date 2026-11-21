@@ -11,6 +11,13 @@
 
   "projects": [
     {
+      "name": "Harada Tracker",
+      "description": "A minimalist Harada method chart: one long-term goal, eight pillars and 64 actions, with daily, weekly, monthly and one-time check-offs.",
+      "live": "https://lrosowsk.github.io/leorosowsky/harada/",
+      "code": "https://github.com/lrosowsk/leorosowsky/tree/main/harada",
+      "year": "2026"
+    },
+    {
       "name": "Example project (replace or delete me)",
       "description": "One or two sentences about what it does.",
       "live": "",
