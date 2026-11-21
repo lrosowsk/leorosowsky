@@ -176,6 +176,49 @@ details.completed summary { font-size: 13px; color: var(--muted); cursor: pointe
   .strip i { width: 7px; }
 }
 
+/* Progress */
+.prog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+.prog-head .seg { width: auto; grid-template-columns: repeat(2, auto); }
+.prog-head .seg button { padding: 6px 14px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--line); margin-bottom: 26px; }
+.stats div { padding: 16px 14px 14px; display: grid; gap: 2px; }
+.stats div + div { border-left: 1px solid var(--line); }
+.stats .n { font-family: var(--serif); font-size: 30px; font-weight: 300; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stats .l { font-size: 12px; color: var(--muted); }
+.trend { position: relative; height: 200px; margin: 8px 0 44px; padding-left: 34px; }
+.trend .grid { position: absolute; left: 34px; right: 0; border-top: 1px solid var(--line); }
+.trend .grid span { position: absolute; left: -34px; top: -8px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.trend .grid.base { border-top-color: var(--faint); }
+.trend .cols { position: absolute; inset: 0 0 0 34px; display: flex; gap: 4px; align-items: stretch; }
+.trend .col { flex: 1 1 0; min-width: 0; position: relative; display: flex; flex-direction: column; justify-content: flex-end; outline-offset: 2px; }
+.trend .col i { display: block; background: var(--ink); border-radius: 4px 4px 0 0; min-height: 2px; max-width: 34px; width: 100%; margin: 0 auto; }
+.trend .col.now i { background: var(--faint); }
+.trend .col.none i { background: transparent; }
+.trend .col:hover i, .trend .col:focus-visible i { opacity: .75; }
+.trend .col .v { position: absolute; left: 0; right: 0; text-align: center; font-size: 11.5px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.trend .col .x { position: absolute; left: -6px; right: -6px; top: 100%; padding-top: 8px; text-align: center; font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.tip { position: absolute; z-index: 5; background: var(--ink); color: var(--bg); font-size: 12px; padding: 7px 10px; border-radius: 6px; pointer-events: none; white-space: nowrap; transform: translate(-50%, calc(-100% - 8px)); line-height: 1.4; }
+.prog-sec { margin-top: 36px; }
+.prog-sec > h2 { margin: 0 0 4px; font-size: 14px; font-weight: 500; }
+.prog-sec > p { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+.prog-sec h3 { margin: 22px 0 2px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.prow { display: grid; grid-template-columns: minmax(0, 1fr) auto 4ch 6ch; gap: 14px; align-items: center; padding: 11px 0; border-top: 1px solid var(--line); }
+.prow .t { min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+.prow .t small { display: block; font-size: 11.5px; color: var(--muted); }
+.spark { display: flex; gap: 2px; align-items: flex-end; height: 26px; }
+.spark i { width: 7px; background: var(--ink); border-radius: 2px 2px 0 0; min-height: 1px; display: block; }
+.spark i.now { background: var(--faint); }
+.spark i.none { background: var(--line); height: 1px !important; }
+.prow .pct { font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+.prow .dlt { font-size: 12px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prow .dlt.up { color: var(--good); }
+@media (max-width: 560px) {
+  .prow { grid-template-columns: minmax(0, 1fr) 4ch 6ch; }
+  .prow .spark { grid-column: 1 / -1; grid-row: 2; }
+  .stats .n { font-size: 24px; }
+  .trend .col .v { font-size: 10px; }
+}
+
 /* Editor */
 .overlay { position: fixed; inset: 0; background: rgba(28, 28, 30, .22); backdrop-filter: blur(2px); display: grid; place-items: center; z-index: 20; padding: 16px; }
 .sheet {
@@ -222,6 +265,7 @@ footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
     <nav class="tabs" aria-label="Views">
       <a href="#today" data-view="today">Today</a>
       <a href="#chart" data-view="chart">Chart</a>
+      <a href="#progress" data-view="progress">Progress</a>
       <a href="#record" data-view="record">Record</a>
     </nav>
   </header>
@@ -447,7 +491,7 @@ footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
   // ---------- rendering ----------
   const $ = s => document.querySelector(s);
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-  function view() { const h = location.hash.slice(1); return ['today', 'chart', 'record'].includes(h) ? h : 'today'; }
+  function view() { const h = location.hash.slice(1); return ['today', 'chart', 'progress', 'record'].includes(h) ? h : 'today'; }
 
   function renderHeader() {
     const t = $('#goalTitle');
@@ -474,8 +518,8 @@ footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
     const m = $('#main');
     let html = '';
     if (staleNote) html += `<p class="notice">${esc(staleNote)}</p><br>`;
-    if (readOnly && v !== 'record') html += `<p class="notice">You can see this tracker, but only its owner can check things off or edit it.</p><br>`;
-    html += v === 'chart' ? chartHTML() : v === 'record' ? recordHTML() : todayHTML();
+    if (readOnly && v !== 'record' && v !== 'progress') html += `<p class="notice">You can see this tracker, but only its owner can check things off or edit it.</p><br>`;
+    html += v === 'chart' ? chartHTML() : v === 'record' ? recordHTML() : v === 'progress' ? progressHTML() : todayHTML();
     m.innerHTML = html;
   }
 
@@ -646,6 +690,163 @@ footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
     return h;
   }
 
+  // ---------- progress over time (read-only: computed from check-offs) ----------
+  let progMode = 'week';
+  try { if (localStorage.getItem('harada-prog-mode') === 'month') progMode = 'month'; } catch (e) { /* ignore */ }
+
+  function progPeriods(acts) {
+    const t = today();
+    let first = key(t);
+    acts.forEach(x => { if (x.a.since && x.a.since < first) first = x.a.since; });
+    const start = parseKey(first), out = [];
+    if (progMode === 'week') {
+      for (let s = weekStart(start); s <= t; s = addDays(s, 7)) out.push([s, addDays(s, 6)]);
+    } else {
+      for (let s = monthStart(start); s <= t; s = addMonths(s, 1)) out.push([s, monthEnd(s)]);
+    }
+    return out;
+  }
+  // Opportunities and hits for one action in one period, counted only from the day it was added up to today.
+  function actionScore(x, s, e) {
+    const t = today(), a = x.a, since = a.since ? parseKey(a.since) : s;
+    const from = s > since ? s : since, to = e < t ? e : t;
+    if (from > to) return null;
+    let opp = 0, hit = 0;
+    if (a.freq === 'daily') {
+      for (let d = new Date(from); d <= to; d = addDays(d, 1)) { opp++; if (days(x.id)[key(d)]) hit++; }
+    } else if (a.freq === 'weekly') {
+      // every week that starts inside this period (a week period is itself one week)
+      for (let w = weekStart(s); w <= e; w = addDays(w, 7)) {
+        if (progMode === 'month' && w < s) continue;
+        const we = addDays(w, 6);
+        if (we < since || w > t) continue;
+        opp += a.target; hit += Math.min(countIn(x.id, w, we), a.target);
+      }
+    } else if (a.freq === 'monthly') {
+      if (progMode !== 'month') return null;
+      opp = a.target; hit = Math.min(countIn(x.id, s, e), a.target);
+    } else return null;
+    return opp ? { opp, hit } : null;
+  }
+  function seriesFor(list, periods) {
+    return periods.map(([s, e]) => {
+      let opp = 0, hit = 0;
+      list.forEach(x => { const r = actionScore(x, s, e); if (r) { opp += r.opp; hit += r.hit; } });
+      return { s, e, opp, hit, pct: opp ? Math.round(100 * hit / opp) : null };
+    });
+  }
+  function periodName(i) { return (progMode === 'week' ? 'Week ' : 'Month ') + (i + 1); }
+  function periodRange(p) {
+    return progMode === 'week' ? fmtShort.format(p.s) + ' – ' + fmtShort.format(p.e) : fmtMonth.format(p.s);
+  }
+  function firstAndLast(series) {
+    const done = series.slice(0, -1).filter(p => p.pct !== null);
+    const firstAny = series.find(p => p.pct !== null) || null;
+    return { first: done[0] || null, last: done[done.length - 1] || null, firstAny };
+  }
+  function deltaHTML(series) {
+    const { first, last } = firstAndLast(series);
+    if (!first || !last || first === last) return '<span class="dlt">–</span>';
+    const d = last.pct - first.pct;
+    return `<span class="dlt ${d > 0 ? 'up' : ''}" title="Change from first to latest finished ${progMode}">${d > 0 ? '+' : ''}${d} pts</span>`;
+  }
+  function sparkHTML(series) {
+    const tail = series.slice(-12), cur = series.length - 1, off = series.length - tail.length;
+    return `<span class="spark" aria-hidden="true">${tail.map((p, k) => {
+      const idx = off + k;
+      if (p.pct === null) return '<i class="none"></i>';
+      return `<i class="${idx === cur ? 'now' : ''}" style="height:${Math.max(4, p.pct)}%" title="${esc(periodName(idx) + ' · ' + periodRange(p) + ' · ' + p.pct + '%')}"></i>`;
+    }).join('')}</span>`;
+  }
+  function latestPct(series) {
+    const { last } = firstAndLast(series);
+    const cur = series[series.length - 1];
+    const p = last || cur;
+    return p && p.pct !== null ? p.pct + '%' : '–';
+  }
+
+  function progressHTML() {
+    const all = activeActions(null).filter(x => x.a.freq !== 'once' && (progMode === 'month' || x.a.freq !== 'monthly'));
+    const seg = `<div class="seg" role="group" aria-label="Group by">
+        <button type="button" data-prog="week" aria-pressed="${progMode === 'week'}">By week</button>
+        <button type="button" data-prog="month" aria-pressed="${progMode === 'month'}">By month</button></div>`;
+    if (!activeActions(null).length) return emptyState();
+    const periods = progPeriods(all);
+    const series = seriesFor(all, periods);
+    const unit = progMode === 'week' ? 'week' : 'month';
+    let h = `<div class="prog-head"><span class="eyebrow">Share of repeating actions done each ${unit}</span>${seg}</div>`;
+    if (!all.length) return h + `<p class="hint">Add an action that repeats daily, weekly${progMode === 'month' ? ' or monthly' : ''} to see progress here.</p>`;
+
+    const { first, last } = firstAndLast(series);
+    const cur = series[series.length - 1];
+    const d = first && last && first !== last ? last.pct - first.pct : null;
+    h += `<div class="stats">
+      <div><span class="n">${cur.pct !== null ? cur.pct + '%' : '–'}</span><span class="l">This ${unit} so far</span></div>
+      <div><span class="n">${last ? last.pct + '%' : '–'}</span><span class="l">Last ${unit}</span></div>
+      <div><span class="n">${d === null ? '–' : (d > 0 ? '+' : '') + d}</span><span class="l">Points since ${first ? periodName(series.indexOf(first)).toLowerCase() : 'the start'}</span></div>
+    </div>`;
+
+    // overall trend bars (latest 16 periods)
+    const shown = series.slice(-16), off = series.length - shown.length;
+    const labelEvery = shown.length > 10 ? 2 : 1;
+    const labelled = new Set([0, shown.length - 1]);
+    const lastDone = shown.length >= 2 ? shown.length - 2 : -1;
+    if (lastDone >= 0) labelled.add(lastDone);
+    h += `<div class="trend" role="img" aria-label="Completion by ${unit}: ${esc(shown.map((p, k) => periodName(off + k) + ' ' + (p.pct === null ? 'no data' : p.pct + '%')).join(', '))}">
+      <div class="grid" style="top:0"><span>100%</span></div>
+      <div class="grid" style="top:50%"><span>50%</span></div>
+      <div class="grid base" style="top:100%"><span>0%</span></div>
+      <div class="cols">${shown.map((p, k) => {
+        const idx = off + k, now = idx === series.length - 1;
+        const tip = p.pct === null ? `${periodName(idx)} · ${periodRange(p)} · nothing to track` :
+          `${periodName(idx)}${now ? ' (so far)' : ''} · ${periodRange(p)}<br>${p.pct}% · ${p.hit} of ${p.opp} done`;
+        const x = (k % labelEvery === 0 || k === shown.length - 1) ? (progMode === 'week' ? 'W' + (idx + 1) : new Intl.DateTimeFormat(undefined, { month: 'short' }).format(p.s)) : '';
+        return `<div class="col ${now ? 'now' : ''} ${p.pct === null ? 'none' : ''}" tabindex="0" data-tip="${esc(tip)}">
+          ${p.pct !== null && labelled.has(k) ? `<span class="v" style="bottom:calc(${p.pct}% + 4px)">${p.pct}%</span>` : ''}
+          <i style="height:${p.pct === null ? 0 : Math.max(1, p.pct)}%"></i><span class="x">${x}</span></div>`;
+      }).join('')}</div>
+    </div>
+    <p class="hint">Black bars are finished ${unit}s; the grey bar is this ${unit} so far. One-time tasks aren’t counted${progMode === 'week' ? ', and monthly actions show under By month' : ''}. An action only counts from the day you added it.</p>`;
+
+    // by pillar
+    const pillars = plan.pillars.map((p, i) => ({ i, name: p.title.trim() || 'Pillar ' + (i + 1), list: all.filter(x => x.i === i) })).filter(p => p.list.length);
+    h += `<section class="prog-sec"><h2>By pillar</h2><p>Latest finished ${unit}, with the change since your first ${unit}.</p>`;
+    pillars.forEach(p => {
+      const sr = seriesFor(p.list, periods);
+      h += `<div class="prow"><span class="t">${esc(p.name)}<small>${p.list.length} action${p.list.length > 1 ? 's' : ''}</small></span>${sparkHTML(sr)}<span class="pct">${latestPct(sr)}</span>${deltaHTML(sr)}</div>`;
+    });
+    h += `</section>`;
+
+    // by action
+    h += `<section class="prog-sec"><h2>By action</h2><p>The same view for each action on its own.</p>`;
+    pillars.forEach(p => {
+      h += `<h3>${esc(p.name)}</h3>`;
+      p.list.forEach(x => {
+        const sr = seriesFor([x], periods);
+        h += `<div class="prow"><span class="t">${esc(x.a.text)}<small>${freqTag(x.a)}</small></span>${sparkHTML(sr)}<span class="pct">${latestPct(sr)}</span>${deltaHTML(sr)}</div>`;
+      });
+    });
+    h += `</section>`;
+    return h;
+  }
+
+  // tooltip for the trend bars
+  function showTip(col) {
+    hideTip();
+    const host = col.closest('.trend'); if (!host) return;
+    const t = document.createElement('div'); t.className = 'tip'; t.innerHTML = col.dataset.tip;
+    const hr = host.getBoundingClientRect(), cr = col.getBoundingClientRect(), bar = col.querySelector('i').getBoundingClientRect();
+    let left = cr.left - hr.left + cr.width / 2;
+    t.style.left = left + 'px'; t.style.top = Math.min(bar.top - hr.top, hr.height - 10) + 'px';
+    host.appendChild(t);
+    const tr = t.getBoundingClientRect();
+    if (tr.left < 4) t.style.left = (left + 4 - tr.left) + 'px';
+    else if (tr.right > window.innerWidth - 4) t.style.left = (left - (tr.right - window.innerWidth + 4)) + 'px';
+  }
+  function hideTip() { document.querySelectorAll('.tip').forEach(n => n.remove()); }
+  document.addEventListener('mouseover', ev => { const c = ev.target.closest && ev.target.closest('.trend .col'); if (c) showTip(c); else hideTip(); });
+  document.addEventListener('focusin', ev => { const c = ev.target.closest && ev.target.closest('.trend .col'); if (c) showTip(c); else hideTip(); });
+
   // ---------- editor ----------
   function openEditor(target) {
     if (readOnly) return;
@@ -751,6 +952,7 @@ footer { margin-top: 48px; font-size: 12px; color: var(--faint); }
     const el = ev.target.closest('button, .overlay');
     if (!el) return;
     if (el.dataset.toggle) return toggle(el.dataset.toggle);
+    if (el.dataset.prog) { progMode = el.dataset.prog; try { localStorage.setItem('harada-prog-mode', progMode); } catch (e) { /* ignore */ } return render(); }
     if (el.dataset.edit) return openEditor(el.dataset.edit);
     const act = el.dataset.act;
     if (act === 'prev') { sel = addDays(sel, -1); return render(); }
